@@ -1,0 +1,25 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: fraud-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fraud
+    driver-class-name: org.postgresql.Driver
+    username: rbendaoud
+    password: password
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      mode: never
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

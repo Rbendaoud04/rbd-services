@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.rbd</groupId>
+    <artifactId>platform-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+
+    <packaging>pom</packaging>
+
+    <name>Platform Parent - Build Configuration for All Microservices</name>
+    <description>
+        Parent POM providing standardized build configuration, plugin management,
+        and compiler settings for all microservices in the platform.
+        Services inherit from this parent and import platform-bom for versions.
+    </description>
+
+    <properties>
+
+        <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+
+        <skipTests>false</skipTests>
+
+
+        <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.2.3</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.2.3</maven-failsafe-plugin.version>
+        <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
+
+        <spring-boot-maven-plugin.version>3.2.2</spring-boot-maven-plugin.version>
+
+
+        <argLine>-Dfile.encoding=UTF-8</argLine>
+    </properties>
+
+        <dependencyManagement>
+            <dependencies>
+                <dependency>
+                    <groupId>com.rbd</groupId>
+                    <artifactId>platform-bom</artifactId>
+                    <version>1.0.0-SNAPSHOT</version>
+                    <type>pom</type>
+                    <scope>import</scope>
+                </dependency>
+            </dependencies>
+        </dependencyManagement>
+
+        <build>
+            <pluginManagement>
+                <plugins>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>${maven-compiler-plugin.version}</version>
+                        <configuration>
+                            <release>${java.version}</release>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <showWarnings>true</showWarnings>
+                            <showDeprecation>true</showDeprecation>
+                            <compilerArgs>
+                                <arg>-parameters</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </plugin>
+
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${maven-surefire-plugin.version}</version>
+                        <configuration>
+                            <useModulePath>false</useModulePath>
+                            <argLine>${argLine}</argLine>
+                        </configuration>
+                    </plugin>
+
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>${maven-failsafe-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <useModulePath>false</useModulePath>
+                            <argLine>${argLine}</argLine>
+                        </configuration>
+                    </plugin>
+
+
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <version>${spring-boot-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>repackage</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </pluginManagement>
+
+
+            <plugins>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>${maven-enforcer-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>enforce-platform-standards</id>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <phase>validate</phase>
+                            <configuration>
+                                <rules>
+
+                                    <requireMavenVersion>
+                                        <version>[3.6.3,)</version>
+                                        <message>
+                                            ❌ BUILD FAILED: Maven version too old.
+
+                                            Required: Maven 3.6.3 or newer
+
+                                            Older Maven versions have critical bugs in dependency
+                                            resolution that cause production incidents.
+
+                                            To check your version: mvn --version
+                                            To upgrade: https://maven.apache.org/download.cgi
+                                        </message>
+                                    </requireMavenVersion>
+
+                                    <requireJavaVersion>
+                                        <version>[17,18)</version>
+                                        <message>
+                                            ❌ BUILD FAILED: Incorrect Java version.
+
+                                            This platform requires Java 17 (LTS).
+
+                                            Your JDK version doesn't match platform requirements.
+                                            Using wrong Java version causes:
+                                            - Production deployment failures
+                                            - UnsupportedClassVersionError at runtime
+                                            - Incompatible bytecode generation
+
+                                            To check your version: java -version
+
+                                            Required: JDK 17 (any patch version: 17.0.x)
+                                            Allowed: 17.0.1, 17.0.2, 17.0.9, etc.
+                                            Blocked: JDK 11, 16, 18, 21
+
+                                            To fix:
+                                            - Install JDK 17 from https://adoptium.net
+                                            - Set JAVA_HOME to JDK 17 installation
+                                            - Verify: java -version (should show 17.x.x)
+                                        </message>
+                                    </requireJavaVersion>
+
+
+                                    <dependencyConvergence/>
+
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </build>
+    </project>
