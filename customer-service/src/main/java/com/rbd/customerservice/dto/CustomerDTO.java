@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CustomerDTO {
 
-    private Long id;
 
     @NotBlank(message = "First name is mandatory")
     private String firstName;

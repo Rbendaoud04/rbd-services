@@ -8,12 +8,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/customers")
 @Tag(name = "Customer Management", description = "Operations related to customers")
@@ -33,6 +35,7 @@ public class CustomerController {
     })
     @PostMapping
     public ResponseEntity<CustomerDTO> createCustomer(@Valid @RequestBody CustomerDTO customerDTO) {
+        log.info("trying to save ::\n"+ customerDTO);
         CustomerDTO savedCustomer = customerService.createCustomer(customerDTO);
         return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
     }

@@ -1,0 +1,26 @@
+server:
+  port: 8761
+eureka:
+  client:
+    fetch-registry: false
+    register-with-eureka: false
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0   # send 100% of traces
+    export:
+      zipkin:
+        enabled: true
+        endpoint: http://localhost:9411/api/v2/spans
+
+    baggage:
+      enabled: true
+      remote-fields: userId,tenantId
+      correlation:
+        enabled: true
+        fields: userId,tenantId  # Add to MDC
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{traceId},%X{spanId}]"

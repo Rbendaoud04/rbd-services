@@ -20,8 +20,9 @@ public class FraudController {
 
     // GET /api/fraud/{customerId}
     @GetMapping("/{customerId}")
-    public ResponseEntity<Boolean> isFraudster(@PathVariable Long customerId) {
+    public ResponseEntity<Boolean> isFraudster(@PathVariable Long customerId) throws InterruptedException{
         log.info("API request: Check if customer {} is fraudster", customerId);
+        //Thread.sleep(10000);
         boolean isFraud = fraudService.checkCustomerFraud(customerId);
         return ResponseEntity.ok(isFraud);
     }

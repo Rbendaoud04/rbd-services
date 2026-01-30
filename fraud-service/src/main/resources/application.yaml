@@ -3,6 +3,10 @@ server:
 spring:
   application:
     name: fraud-service
+  cloud:
+    openfeign:
+      micrometer:
+        enabled: true
   datasource:
     url: jdbc:postgresql://localhost:5432/fraud
     driver-class-name: org.postgresql.Driver
@@ -23,3 +27,30 @@ spring:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0   # send 100% of traces
+    export:
+      zipkin:
+        enabled: true
+        endpoint: http://localhost:9411/api/v2/spans
+
+    baggage:
+      enabled: true
+      remote-fields: userId,tenantId
+      correlation:
+        enabled: true
+        fields: userId,tenantId  # Add to MDC
+    propagation:
+      type: b3
+
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{traceId},%X{spanId}]"

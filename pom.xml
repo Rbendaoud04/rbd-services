@@ -12,11 +12,13 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>platform-bom</module>
-    <module>platform-parent</module>
-    <module>customer-service</module>
+      <module>platform-bom</module>
+      <module>platform-parent</module>
+      <module>customer-service</module>
       <module>fraud-service</module>
-
+      <module>eureka-server</module>
+      <module>clients</module>
+      <module>notification-service</module>
   </modules>
 
 </project>

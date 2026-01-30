@@ -2,6 +2,9 @@ package com.rbd.customerservice.service.impl;
 
 
 
+import com.rbd.clients.fraud.FraudClient;
+import com.rbd.clients.notification.NotificationClient;
+import com.rbd.clients.notification.NotificationRequest;
 import com.rbd.customerservice.dto.CustomerDTO;
 import com.rbd.customerservice.entity.Customer;
 import com.rbd.customerservice.exception.CustomerNotFoundException;
@@ -9,6 +12,7 @@ import com.rbd.customerservice.repository.CustomerRepository;
 import com.rbd.customerservice.service.CustomerService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,20 +21,47 @@ import java.util.stream.Collectors;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
+//    private final RestTemplate  restTemplate;
+    private final FraudClient fraudClient;
+    private final NotificationClient notificationClient;
 
     // Constructor Injection
-    public CustomerServiceImpl(CustomerRepository customerRepository) {
+    public CustomerServiceImpl(CustomerRepository customerRepository, FraudClient fraudClient, NotificationClient notificationClient) {
         this.customerRepository = customerRepository;
+        this.fraudClient = fraudClient;
+        this.notificationClient = notificationClient;
     }
 
     @Override
     @Transactional
     public CustomerDTO createCustomer(CustomerDTO customerDTO) {
-        // Map DTO to Entity
+
+        // 1. DTO → Entity
         Customer customer = mapToEntity(customerDTO);
+
+        // 2. Save customer (ID needed)
         Customer savedCustomer = customerRepository.save(customer);
+
+        // 3. Call fraud-service
+//        Boolean isFraud = restTemplate.getForObject(
+//                "http://FRAUD-SERVICE/api/fraud/" + savedCustomer.getId(),
+//                Boolean.class
+//        );
+        Boolean isFraud = fraudClient.isFraudster(savedCustomer.getId());
+
+
+        // 4. If fraud → rollback
+        if (Boolean.TRUE.equals(isFraud)) {
+            throw new IllegalStateException("Customer is fraud");
+        }
+        NotificationRequest notificationRequest = new NotificationRequest(savedCustomer.getId(),savedCustomer.getEmail(),"rbd.com","Welcome "+savedCustomer.getLastName() +" enjow our services nice to having you here") ;
+        notificationClient.sendNotification(notificationRequest);
+
+
+        // 5. Return DTO
         return mapToDTO(savedCustomer);
     }
+
 
     @Override
     public CustomerDTO getCustomerById(Long id) {
@@ -75,7 +106,6 @@ public class CustomerServiceImpl implements CustomerService {
 
     private CustomerDTO mapToDTO(Customer customer) {
         return CustomerDTO.builder()
-                .id(customer.getId())
                 .firstName(customer.getFirstName())
                 .lastName(customer.getLastName())
                 .email(customer.getEmail())

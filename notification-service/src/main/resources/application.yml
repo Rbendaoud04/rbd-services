@@ -1,0 +1,71 @@
+server:
+  port: 8083
+spring:
+  application:
+    name: notification-service
+  cloud:
+    openfeign:
+      micrometer:
+        enabled: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/notification
+    driver-class-name: org.postgresql.Driver
+    username: rbendaoud
+    password: password
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      mode: never
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      fraudService:
+        failureRateThreshold: 50
+        slidingWindowSize: 10
+        waitDurationInOpenState: 30s
+        minimumNumberOfCalls: 5
+
+  timelimiter:
+    instances:
+      fraudService:
+        timeoutDuration: 2s
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0   # send 100% of traces
+    export:
+      zipkin:
+        enabled: true
+        endpoint: http://localhost:9411/api/v2/spans
+
+    baggage:
+      enabled: true
+      remote-fields: userId,tenantId
+      correlation:
+        enabled: true
+        fields: userId,tenantId  # Add to MDC
+    propagation:
+      type: b3
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{traceId},%X{spanId}]"
