@@ -7,6 +7,11 @@ spring:
     openfeign:
       micrometer:
         enabled: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
   datasource:
     url: jdbc:postgresql://localhost:5432/notification
     driver-class-name: org.postgresql.Driver

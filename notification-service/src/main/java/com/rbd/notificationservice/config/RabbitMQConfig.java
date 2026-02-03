@@ -1,4 +1,4 @@
-package com.rbd.customerservice.config;
+package com.rbd.notificationservice.config;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
@@ -23,15 +23,11 @@ public class RabbitMQConfig {
     // A constant for the name of the queue where customer-related messages will be sent.
     public static final String CUSTOMER_QUEUE = "customer.queue";
 
-    public static final String FRAUD_QUEUE = "fraud.queue";
-
     // A constant for the name of the exchange that will route messages to the customer queue.
     public static final String CUSTOMER_EXCHANGE = "customer.exchange";
-    public static final String FRAUD_EXCHANGE  = "fraud.exchange";
 
     // A constant for the routing key used to bind the queue to the exchange.
     public static final String CUSTOMER_ROUTING_KEY = "customer.routingKey";
-    public static final String FRAUD_ROURTING_KEY = "fraud.routingKey";
 
     /**
      * Defines the primary queue for customer messages.
@@ -47,14 +43,6 @@ public class RabbitMQConfig {
         // Messages in a durable queue will also survive a restart if they are marked as persistent.
         return new Queue(CUSTOMER_QUEUE, true);
     }
-    @Bean
-    Queue fraudQueue() {
-        // new Queue(name, durable)
-        // 'durable' is set to true, which means the queue will survive a broker restart.
-        // Messages in a durable queue will also survive a restart if they are marked as persistent.
-        return new Queue(FRAUD_QUEUE, true);
-    }
-
 
     /**
      * Defines the exchange that will route messages to our queue.
@@ -70,14 +58,6 @@ public class RabbitMQConfig {
         // to the queue whose binding key exactly matches the message's routing key.
         return new DirectExchange(CUSTOMER_EXCHANGE);
     }
-    @Bean
-    DirectExchange fraudExchange() {
-        // A DirectExchange delivers messages to queues based on the message routing key.
-        // The routing key is an attribute of the message. The exchange will send the message
-        // to the queue whose binding key exactly matches the message's routing key.
-        return new DirectExchange(FRAUD_EXCHANGE);
-    }
-
 
     /**
      * Binds the queue to the exchange using a routing key.
@@ -94,14 +74,6 @@ public class RabbitMQConfig {
         // The 'with(CUSTOMER_ROUTING_KEY)' part specifies that the exchange should send messages
         // to this queue only if the message's routing key matches 'customer.routingKey'.
         return BindingBuilder.bind(queue).to(exchange).with(CUSTOMER_ROUTING_KEY);
-    }
-
-    @Bean
-    Binding fraudBinding(Queue fraudQueue, DirectExchange fraudExchange) {
-        // This creates a binding between the 'customer.queue' and the 'customer.exchange'.
-        // The 'with(CUSTOMER_ROUTING_KEY)' part specifies that the exchange should send messages
-        // to this queue only if the message's routing key matches 'customer.routingKey'.
-        return BindingBuilder.bind(fraudQueue).to(fraudExchange).with(FRAUD_ROURTING_KEY);
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.rbd.notificationservice.controller;
 
 
-import com.rbd.notificationservice.dto.NotificationRequest;
+import com.rbd.clients.notification.NotificationRequest;
 import com.rbd.notificationservice.entity.Notification;
 import com.rbd.notificationservice.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,14 +26,8 @@ public class NotificationController {
     @PostMapping
     public ResponseEntity<NotificationRequest> sendNotification(@RequestBody NotificationRequest request) {
         log.info("trying to save ::\n"+ request);
-        Notification notification = Notification.builder()
-                .toCustomerEmail(request.toCustomerEmail())
-                .toCustomerId(request.toCustomerId())
-                .sender(request.sender())
-                .message(request.message())
-                .sentAt(LocalDateTime.now())
-                .build();
-        Notification savedNotification = notificationService.sendNotification(notification);
+
+        Notification savedNotification = notificationService.sendNotificationSynchronous(request);
         return ResponseEntity.ok(request);
     }
 
